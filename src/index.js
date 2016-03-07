@@ -53,8 +53,11 @@ module.exports = function(config) {
   return {
     aggregate: function(reports, done) {
       var results = ['average', 'max', 'min'].reduce(function(p,n){
-        p[n] = generateSummary(function(obj){ return obj.report.total; })(fns[n], reports, properties);
-        p[n].functions = fns[n](reports, function(n) {return n.report.functions.length});
+        p[n] = {
+          total: generateSummary(function(obj){ return obj.report.total; })(fns[n], reports, properties),
+          average: generateSummary(function(obj){ return obj.report.average; })(fns[n], reports, properties),
+        };
+        p[n].numFunctions = fns[n](reports, function(n) {return n.report.functions.length});
         return p;
       },{});
       results.each = reports.map(function(report) {

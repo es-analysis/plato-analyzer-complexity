@@ -63,32 +63,36 @@ describe('analyzer-complexity', function(){
     it('should report averages and minmax', function(done){
       instance.aggregate(reports, function(err, report) {
         if (err) return done(err);
-        assert.equal(report.average.functions, 2);
-        assert.equal(report.average.lloc, 4);
-        assert.equal(report.average.cyclomatic, 3);
-        assert.equal(report.max.functions.value, 3);
-        assert.equal(report.max.lloc.value, 6);
-        assert.equal(report.max.cyclomatic.value, 4);
-        assert.equal(report.min.functions.value, 1);
-        assert.equal(report.min.lloc.value, 2);
-        assert.equal(report.min.cyclomatic.value, 2);
+        // TODO assert [ave/min/max].average
+        assert.equal(report.average.numFunctions, 2);
+        assert.equal(report.average.total.lloc, 4);
+        assert.equal(report.average.total.cyclomatic, 3);
+        assert.equal(report.max.numFunctions.value, 3);
+        assert.equal(report.max.total.lloc.value, 6);
+        assert.equal(report.max.total.cyclomatic.value, 4);
+        assert.equal(report.min.numFunctions.value, 1);
+        assert.equal(report.min.total.lloc.value, 2);
+        assert.equal(report.min.total.cyclomatic.value, 2);
 
-        function simpleTypeExists(type) {
+        function simpleTypeExists(prop, type) {
           return function (property) {
-            assert.equal(typeof report[type][property], 'number', 'typeof ' + type + '.' + property);
-            assert(report[type][property] > 0,  'gt 0 ? ' + type + '.' + property)
+            assert.equal(typeof report[type][prop][property], 'number', 'typeof ' + type + '.' + property);
+            assert(report[type][prop][property] > 0,  'gt 0 ? ' + type + '.' + property)
           }
         }
-        function complexTypeExists(type) {
+        function complexTypeExists(prop, type) {
           return function (property) {
-            assert(report[type][property].file.length > 0, 'file is populated ' + type + '.' + property);
-            assert.equal(typeof report[type][property].value, 'number', 'typeof ' + type + '.' + property);
-            assert(report[type][property].value > 0,  'gt 0 ? ' + type + '.' + property)
+            assert(report[type][prop][property].file.length > 0, 'file is populated ' + type + '.' + property);
+            assert.equal(typeof report[type][prop][property].value, 'number', 'typeof ' + type + '.' + property);
+            assert(report[type][prop][property].value > 0,  'gt 0 ? ' + type + '.' + property)
           }
         }
-        analyzer.properties.forEach(simpleTypeExists('average'));
-        analyzer.properties.forEach(complexTypeExists('min'));
-        analyzer.properties.forEach(complexTypeExists('max'));
+        analyzer.properties.forEach(simpleTypeExists('total', 'average'));
+        analyzer.properties.forEach(complexTypeExists('total', 'min'));
+        analyzer.properties.forEach(complexTypeExists('total', 'max'));
+        analyzer.properties.forEach(simpleTypeExists('average', 'average'));
+        analyzer.properties.forEach(complexTypeExists('average', 'min'));
+        analyzer.properties.forEach(complexTypeExists('average', 'max'));
         done();
       });
     });
