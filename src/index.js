@@ -63,7 +63,8 @@ module.exports = function(config) {
       results.each = reports.map(function(report) {
         return {
           file: report.file,
-          total: pluck(properties)(report.report.total)
+          total: pluck(properties)(report.report.total),
+          average: pluck(properties)(report.report.average)
         };
       });
       done(null, results);

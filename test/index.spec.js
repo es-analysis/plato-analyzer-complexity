@@ -30,6 +30,7 @@ describe('analyzer-complexity', function(){
       instance.run(files[2].file, files[2].src, function(err, report) {
         if (err) return done(err);
         assert(report.total.lloc > 0);
+        assert(report.average.lloc > 0);
         done();
       });
     });
