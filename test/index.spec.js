@@ -17,6 +17,8 @@ var files = [
 
 files = files.map(function(file) {return {file: file, src: read(file)}});
 
+// TODO use js-schema to assert on the output
+
 describe('analyzer-complexity', function(){
   describe('single file analysis', function(){
     var instance;
@@ -25,10 +27,8 @@ describe('analyzer-complexity', function(){
     });
 
     it('should report the required fields', function(done){
-      instance.run(files[2].src, function(err, report) {
+      instance.run(files[2].file, files[2].src, function(err, report) {
         if (err) return done(err);
-        console.log("single");
-        console.log(report);
         assert(report.total.lloc > 0);
         done();
       });
@@ -40,7 +40,7 @@ describe('analyzer-complexity', function(){
     beforeEach(function(done){
       instance = analyzer();
       async.parallel(files.map(function(file){return function(cb){
-        instance.run(file.src, function(err, result) {
+        instance.run(file.file, file.src, function(err, result) {
           if (err) return cb(err);
           cb(null, {file: file.file, report: result});
         });
@@ -50,12 +50,19 @@ describe('analyzer-complexity', function(){
         done();
       });
     });
+    
+    it('should report totals for every file', function(done) {
+      instance.aggregate(reports, function(err, report) {
+        if (err) return done(err);
+        assert.equal(report.each.length, 3);
+        assert.equal(report.each[0].total.lloc, 2);
+        done();
+      });
+    });
 
     it('should report averages and minmax', function(done){
       instance.aggregate(reports, function(err, report) {
         if (err) return done(err);
-        console.log("batch");
-        console.log(report);
         assert.equal(report.average.functions, 2);
         assert.equal(report.average.lloc, 4);
         assert.equal(report.average.cyclomatic, 3);
@@ -65,6 +72,7 @@ describe('analyzer-complexity', function(){
         assert.equal(report.min.functions.value, 1);
         assert.equal(report.min.lloc.value, 2);
         assert.equal(report.min.cyclomatic.value, 2);
+
         function simpleTypeExists(type) {
           return function (property) {
             assert.equal(typeof report[type][property], 'number', 'typeof ' + type + '.' + property);

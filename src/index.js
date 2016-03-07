@@ -57,9 +57,15 @@ module.exports = function(config) {
         p[n].functions = fns[n](reports, function(n) {return n.report.functions.length});
         return p;
       },{});
+      results.each = reports.map(function(report) {
+        return {
+          file: report.file,
+          total: pluck(properties)(report.report.total)
+        };
+      });
       done(null, results);
     },
-    run: function(src, done) {
+    run: function(filename, src, done) {
       var results = complexity.analyze(parser.parseModule(src));
       var keys = properties;
       results.functions = results.functions.map(pluck(keys));
